@@ -2,20 +2,19 @@
 <html>
 	<head>
 		<script src="../anim.js"></script>
+		
 		<script>
 			window.addEventListener('error', function(e){
 				console.log(e);
 			});
 			
 			window.addEventListener('load', function(){
-				
-				
 				var monAnim = {
 					element: document.querySelector("div"),
 					prop: ["top", "left"],
 					unite: ["px", "px"],
 					fin: [100, 200],
-					delai: 700,
+					delai: 500,
 					callback: function(){ console.log("fin");}
 				};
 				
@@ -30,8 +29,8 @@
 				width:50px;
 				height: 50px;
 				background-color: #FF0000;
-				top:0;
-				left:0;
+				top:50px;
+				left:250px;
 				position:absolute;
 					
 			}

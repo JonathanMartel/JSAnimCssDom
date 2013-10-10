@@ -14,6 +14,8 @@
  */
 
 // TODO : Ajouter la possibilité d'animer plus d'un élément avec les mêmes propriétés
+// TODO : Vérifier la pertinence de passer ça en Immediately-Invoked Function Expression (IIFE)
+// Voir : The Module Pattern => http://benalman.com/news/2010/11/immediately-invoked-function-expression/
 
 /*
 var propAnim = {
@@ -26,10 +28,25 @@ var propAnim = {
 		};
 */
 
+
+
+
+
 function Anim(ani)
 {
 	"use strict";
 	var erreur;
+	this.deltaTime =null;
+	this.maintenant = null;
+	this.avant =null;
+	this.statut = 
+	{
+		demarrer:'demarrer',
+		arret: 'arret',
+		pause:'pause',
+		fin:'fin'
+	};
+	
 	if(ani)
 	{
 		this.ani = ani;
@@ -39,13 +56,15 @@ function Anim(ani)
 		throw new TypeError("L'animation n'est pas définie");
 		
 	}
-
+	
+	
 	if(this.ani)
 	{
 		this.prepAnim();
 	}
 	
 }
+
 
 /**
 * Fonction qui prépare l'animation. elle calcul le nombre d'iteration nécessaire et le pas (la valeur de changement pour chaque frame) de chaque déplacement.
@@ -55,24 +74,28 @@ Anim.prototype.prepAnim = function()
 	"use strict";
 	var i;
 	var valeur;
+	this.ani.valeur = [];
+	this.ani.debut = [];
 	this.ani.inter = [];
 	this.ani.typeProp = [];
 	
 	// Calcul du nombre d'iteration
-	this.ani.iteration = this.ani.delai / this.deltaTime;
+	// this.ani.iteration = this.ani.delai / this.deltaTime;
 //TODO : Vérifier l'existence de la propriété et son attachement (CSS ou DOM Element)
 
 	// Pour chaque propriété à animer.
 	for(i=0;i<this.ani.prop.length; i++)
 	{
 		// Vérifier le type de propriété (CSS ou DOM)
-		console.log(this.ani.element[this.ani.prop[i]]);
+		
 		if(this.ani.element[this.ani.prop[i]] !== undefined && this.ani.element[this.ani.prop[i]] !== null)	// Prop DOM
 		{
 			this.ani.typeProp[i] = 'DOM';
 			
 			// Lecture de la valeur actuelle
-			valeur = parseFloat(this.ani.element[this.ani.prop[i]]);
+			this.ani.valeur[i] = parseFloat(this.ani.element[this.ani.prop[i]]);
+			this.ani.debut[i] = this.ani.valeur[i];
+			
 		}
 		else
 		{
@@ -80,13 +103,18 @@ Anim.prototype.prepAnim = function()
 			
 			// Lecture de la valeur actuelle
 			valeur = window.getComputedStyle(this.ani.element,null).getPropertyValue(this.ani.prop[i]);		// BUG : Dans Chrome, valeur == auto et non la valeur calculée
-			valeur = parseFloat(valeur);
+			if(valeur == "auto")
+			{
+				throw new Error('La propriété retourne une valeur non numérique ('+ this.ani.prop[i]+'='+valeur +')');
+			}
+			this.ani.valeur[i] = parseFloat(valeur);
+			this.ani.debut[i] = this.ani.valeur[i];
 		}
 	
-		console.log(valeur);
+		console.log(this.ani.valeur[i]);
 				
 		// Calcul du pas
-		this.ani.inter[i] = (this.ani.fin[i] - valeur) / (this.ani.delai / this.deltaTime);
+		//this.ani.inter[i] = (this.ani.fin[i] - valeur) / (this.ani.delai / this.deltaTime);
 		console.log(this.ani);
 
 	}
@@ -102,14 +130,40 @@ Anim.prototype.animationStep = function()
 {
 	"use strict";
 	var i;
-	var valeur;
+	var step;
+	
+	this.maintenant = Date.now();
+    this.deltaTime = this.maintenant - this.avant;
+	this.avant = this.maintenant;
+	
 	console.log('step');
-	// Si c'est la dernière iteraction (fin de l'animation)
-	if(this.ani.iteration <=1)
+	console.log(this.deltaTime);
+	// Si c'est la dernière iteration (fin de l'animation)
+	
+	// Pour chaque propriété
+	for(i=0;i<this.ani.prop.length; i++)
 	{
-		// Pour chaque propriété
-		for(i=0;i<this.ani.prop.length; i++)
+		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
+		console.log('delai/deltaTime', this.ani.delai/this.deltaTime);
+		console.log('step', step);
+		console.log('condition', Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]));
+		
+		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]))
 		{
+			this.ani.valeur[i] += step;
+			if(this.ani.typeProp[i] == 'DOM')
+			{
+				this.ani.element[this.ani.prop[i]] = this.ani.valeur[i];
+			}
+			else if(this.ani.typeProp[i] == 'CSS')
+			{
+				this.ani.element.style[this.ani.prop[i]] = this.ani.valeur[i] +this.ani.unite[i];
+			}
+			
+		}
+		else
+		{
+			this.ani.valeur[i] += step;
 			if(this.ani.typeProp[i] == 'DOM')
 			{
 				this.ani.element[this.ani.prop[i]] = this.ani.fin[i];
@@ -118,49 +172,30 @@ Anim.prototype.animationStep = function()
 			{
 				this.ani.element.style[this.ani.prop[i]] = this.ani.fin[i]+this.ani.unite[i];
 			}
+			this.ani.statut = this.statut.fin;
+			if(this.ani.callback)
+			{
+				this.ani.callback();	// Appel de la fonction callback.
+			}
 		}
-		// S'il y a un callback
-		if(this.ani.callback)
-		{
-			this.ani.callback();	// Appel de la fonction callback.
-		}
+		
+		
 	}
-	else
+	if(this.ani.statut != this.statut.fin)
 	{
-		// Pour chaque propriété
-		for(i=0;i<this.ani.prop.length; i++)
-		{
-			if(this.ani.typeProp[i] == 'DOM')
-			{
-				valeur = parseFloat(this.ani.element[this.ani.prop[i]]);
-				this.ani.element[this.ani.prop[i]] = (valeur + this.ani.inter[i]);
-				
-			}
-			else if(this.ani.typeProp[i] == 'CSS')
-			{
-				//Lecture de la valeur actuelle
-				valeur = window.getComputedStyle(this.ani.element,null).getPropertyValue(this.ani.prop[i]);
-				// Retirer les unites
-				valeur = parseFloat(valeur);
-				// Affectation de la nouvelle valeur (valeur actuelle + interval (ou le pas)
-				this.ani.element.style[this.ani.prop[i]] = (valeur + this.ani.inter[i])+this.ani.unite[i];
-			}
-		}
-
-		// Une de moins à faire...
-		this.ani.iteration --;
-
 		requestAnimationFrame(this.animationStep.bind(this));
-		// Redémarre l'animation dans deltaTime.
-		//setTimeout(this.animationStep.bind(this), this.deltaTime);
 	}
 };
 
 Anim.prototype.demarre = function()
 {
 	"use strict";
-	requestAnimationFrame(this.animationStep.bind(this));
-	//this.animationStep();
+	this.avant = Date.now()-16;
+	this.deltaTime = 16;
+	this.ani.statut = this.statut.demarrer;
+	this.animationStep();
+	
+	//requestAnimationFrame(this.animationStep.bind(this));
 };
 
 
