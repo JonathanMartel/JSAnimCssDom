@@ -1,4 +1,4 @@
-/*global clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
+/*global requestAnimationFrame:false, clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
 /*global alert: true, confirm: true, console: false, Debug: true, opera: false, prompt: false, WSH: false */
 /*jslint plusplus: true */
 
@@ -13,6 +13,8 @@
  * 
  */
 
+// TODO : Ajouter la possibilité d'animer plus d'un élément avec les mêmes propriétés
+
 /*
 var propAnim = {
 			element: ,
@@ -24,7 +26,7 @@ var propAnim = {
 		};
 */
 
-function Anim(ani, frameRate)
+function Anim(ani)
 {
 	"use strict";
 	var erreur;
@@ -37,33 +39,13 @@ function Anim(ani, frameRate)
 		throw new TypeError("L'animation n'est pas définie");
 		
 	}
-	
-	
-	if(frameRate)
-	{
-		this.setFrameRate(frameRate);
-	}
-	else
-	{
-		this.setFrameRate(60);
-	}
-	
+
 	if(this.ani)
 	{
 		this.prepAnim();
 	}
 	
 }
-Anim.prototype.setFrameRate = function(frameRate)
-{
-	"use strict";
-	if(frameRate)
-	{
-		this.frameRate = frameRate;
-		this.deltaTime = 1000/this.frameRate;
-		
-	}
-};
 
 /**
 * Fonction qui prépare l'animation. elle calcul le nombre d'iteration nécessaire et le pas (la valeur de changement pour chaque frame) de chaque déplacement.
@@ -168,14 +150,47 @@ Anim.prototype.animationStep = function()
 		// Une de moins à faire...
 		this.ani.iteration --;
 
+		requestAnimationFrame(this.animationStep.bind(this));
 		// Redémarre l'animation dans deltaTime.
-		setTimeout(this.animationStep.bind(this), this.deltaTime);
+		//setTimeout(this.animationStep.bind(this), this.deltaTime);
 	}
 };
 
 Anim.prototype.demarre = function()
 {
 	"use strict";
-	this.animationStep();
+	requestAnimationFrame(this.animationStep.bind(this));
+	//this.animationStep();
 };
 
+
+// http://creativejs.com/resources/requestanimationframe/
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
