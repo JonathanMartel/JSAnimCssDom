@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../anim.js"></script>
+		<script>
+			window.addEventListener('error', function(e){
+				console.log(e);
+			});
+			
+			window.addEventListener('load', function(){
+				
+				
+				var monAnim = {
+					element: document.querySelector("div"),
+					prop: ["top", "left"],
+					unite: ["px", "px"],
+					fin: [100, 200],
+					delai: 700,
+					callback: function(){ console.log("fin");}
+				};
+				
+				var anim = new Anim(monAnim);
+				anim.demarre();
+			});
+
+		</script>
+		<style>
+			div
+			{
+				width:50px;
+				height: 50px;
+				background-color: #FF0000;
+				
+				
+				position:absolute;
+					
+			}
+		
+		</style>
+	</head>
+	<body>
+		<div></div>
+	
+	</body>
+
+</html>
