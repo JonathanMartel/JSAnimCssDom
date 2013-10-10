@@ -7,7 +7,9 @@
  * 
  * @author Jonathan Martel (jmartel@cmaisonneuve.qc.ca)
  * @date 2013-10-09
- * 
+ * @update 2013-10-10
+ * @license Creative Commons BY-NC 3.0 (Licence Creative Commons Attribution - Pas d’utilisation commerciale 3.0 non transposé)
+ * @license http://creativecommons.org/licenses/by-nc/3.0/deed.fr
  * 
  */
 
