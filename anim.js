@@ -8,7 +8,7 @@
  * @author Jonathan Martel (jmartel@cmaisonneuve.qc.ca)
  * @date 2013-10-09
  * @update 2013-10-10
- * @version 0.1
+ * @version 0.1.1
  * @license Creative Commons BY-NC 3.0 (Licence Creative Commons Attribution - Pas d’utilisation commerciale 3.0 non transposé)
  * @license http://creativecommons.org/licenses/by-nc/3.0/deed.fr
  * 
@@ -78,7 +78,7 @@ Anim.prototype.prepAnim = function()
 	var valeur;
 	this.ani.valeur = [];
 	this.ani.debut = [];
-	this.ani.inter = [];
+	//this.ani.inter = [];
 	this.ani.typeProp = [];
 	
 	// Calcul du nombre d'iteration
@@ -89,7 +89,6 @@ Anim.prototype.prepAnim = function()
 	for(i=0;i<this.ani.prop.length; i++)
 	{
 		// Vérifier le type de propriété (CSS ou DOM)
-		
 		if(this.ani.element[this.ani.prop[i]] !== undefined && this.ani.element[this.ani.prop[i]] !== null)	// Prop DOM
 		{
 			this.ani.typeProp[i] = 'DOM';
@@ -113,6 +112,23 @@ Anim.prototype.prepAnim = function()
 			this.ani.debut[i] = this.ani.valeur[i];
 		}
 	}
+
+	// Vérifier si la propriété doit être animé ou non
+	for(i=this.ani.prop.length-1;i>=0; i--)
+	{
+		console.log('prop', i);
+		if(this.ani.valeur[i] == this.ani.fin[i])
+		{
+			console.log('effacement', i);
+			this.ani.valeur.splice(i, 1);
+			this.ani.debut.splice(i, 1);
+			this.ani.fin.splice(i, 1);
+			this.ani.prop.splice(i, 1);
+			this.ani.typeProp.splice(i, 1);
+			this.ani.unite.splice(i, 1);
+		}
+	}
+	console.log(this.ani);
 };
 
 /**
@@ -140,7 +156,7 @@ Anim.prototype.animationStep = function()
 	{
 		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
 
-		
+		console.log('step',step);
 		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]))
 		{
 			this.ani.valeur[i] += step;
