@@ -1,24 +1,29 @@
-/*global requestAnimationFrame:false, clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
+/*global Event:false, requestAnimationFrame:false, clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
 /*global alert: true, confirm: true, console: false, Debug: true, opera: false, prompt: false, WSH: false */
 /*jslint plusplus: true */
 
 /**
- * Classe de gestion d'animation légère
+ * Objet de gestion d'animation légère. Cet objet permet d'animer des propriétés CSS et DOM (par extension, toute propriété d'un objet)
  * 
  * @author Jonathan Martel (jmartel@cmaisonneuve.qc.ca)
  * @date 2013-10-09
  * @update 2013-10-10
+ * @version 0.1
  * @license Creative Commons BY-NC 3.0 (Licence Creative Commons Attribution - Pas d’utilisation commerciale 3.0 non transposé)
  * @license http://creativecommons.org/licenses/by-nc/3.0/deed.fr
  * 
  */
 
 // TODO : Ajouter la possibilité d'animer plus d'un élément avec les mêmes propriétés
-// TODO : Vérifier la pertinence de passer ça en Immediately-Invoked Function Expression (IIFE)
-// Voir : The Module Pattern => http://benalman.com/news/2010/11/immediately-invoked-function-expression/
+// TODO : Commenter le code
+
+
+
+
+
 
 /*
-var propAnim = {
+var ani = {
 			element: ,
 			prop: [],
 			unite: [],
@@ -27,9 +32,6 @@ var propAnim = {
 			callback: function(){}
 		};
 */
-
-
-
 
 
 function Anim(ani)
@@ -81,7 +83,7 @@ Anim.prototype.prepAnim = function()
 	
 	// Calcul du nombre d'iteration
 	// this.ani.iteration = this.ani.delai / this.deltaTime;
-//TODO : Vérifier l'existence de la propriété et son attachement (CSS ou DOM Element)
+	//TODO : Vérifier l'existence de la propriété et son attachement (CSS ou DOM Element)
 
 	// Pour chaque propriété à animer.
 	for(i=0;i<this.ani.prop.length; i++)
@@ -110,16 +112,7 @@ Anim.prototype.prepAnim = function()
 			this.ani.valeur[i] = parseFloat(valeur);
 			this.ani.debut[i] = this.ani.valeur[i];
 		}
-	
-		console.log(this.ani.valeur[i]);
-				
-		// Calcul du pas
-		//this.ani.inter[i] = (this.ani.fin[i] - valeur) / (this.ani.delai / this.deltaTime);
-		console.log(this.ani);
-
 	}
-	
-	
 };
 
 /**
@@ -136,17 +129,17 @@ Anim.prototype.animationStep = function()
     this.deltaTime = this.maintenant - this.avant;
 	this.avant = this.maintenant;
 	
-	console.log('step');
-	console.log(this.deltaTime);
+	var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
+	document.dispatchEvent(event);
+
+	console.log('deltaTime',this.deltaTime);
 	// Si c'est la dernière iteration (fin de l'animation)
 	
 	// Pour chaque propriété
 	for(i=0;i<this.ani.prop.length; i++)
 	{
 		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
-		console.log('delai/deltaTime', this.ani.delai/this.deltaTime);
-		console.log('step', step);
-		console.log('condition', Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]));
+
 		
 		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]))
 		{
@@ -173,29 +166,28 @@ Anim.prototype.animationStep = function()
 				this.ani.element.style[this.ani.prop[i]] = this.ani.fin[i]+this.ani.unite[i];
 			}
 			this.ani.statut = this.statut.fin;
-			if(this.ani.callback)
-			{
-				this.ani.callback();	// Appel de la fonction callback.
-			}
+
 		}
-		
-		
 	}
 	if(this.ani.statut != this.statut.fin)
 	{
 		requestAnimationFrame(this.animationStep.bind(this));
+	}
+	else
+	{
+		if(this.ani.callback)
+		{
+			this.ani.callback();	// Appel de la fonction callback.
+		}
 	}
 };
 
 Anim.prototype.demarre = function()
 {
 	"use strict";
-	this.avant = Date.now()-16;
-	this.deltaTime = 16;
+	this.avant = Date.now();
 	this.ani.statut = this.statut.demarrer;
-	this.animationStep();
-	
-	//requestAnimationFrame(this.animationStep.bind(this));
+	requestAnimationFrame(this.animationStep.bind(this));
 };
 
 

@@ -2,24 +2,24 @@
 <html>
 	<head>
 		<script src="../anim.js"></script>
-		
 		<script>
 			window.addEventListener('error', function(e){
 				console.log(e);
 			});
-			
+
 			window.addEventListener('load', function(){
-				document.addEventListener('enterFrame', function(e){console.log(e);});
+				var obj = {valeur:0};
+				document.addEventListener('enterFrame', function(e){console.log(obj.valeur);});
 
 				var monAnim = {
-					element: document.querySelector("div"),
-					prop: ["top", "left"],
-					unite: ["px", "px"],
-					fin: [100, 200],
-					delai: 500,
-					callback: function(){ console.log("fin");}
+					element: obj,
+					prop: ["valeur"],
+					unite: [],
+					fin: [1000],
+					delai: 700,
+					callback: function(){ console.log(obj.valeur);}
 				};
-				
+
 				var anim = new Anim(monAnim);
 				anim.demarre();
 			});
@@ -31,17 +31,17 @@
 				width:50px;
 				height: 50px;
 				background-color: #FF0000;
-				top:0px;
-				left:0px;
+
+
 				position:absolute;
-					
+
 			}
-		
+
 		</style>
 	</head>
 	<body>
 		<div></div>
-	
+
 	</body>
 
 </html>
