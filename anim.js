@@ -20,8 +20,6 @@
 
 
 
-
-
 /*
 var ani = {
 			element: ,
@@ -118,10 +116,10 @@ Anim.prototype.prepAnim = function()
 	// Vérifier si la propriété doit être animé ou non
 	for(i=this.ani.prop.length-1;i>=0; i--)
 	{
-		console.log('prop', i);
+		
 		if(this.ani.valeur[i] == this.ani.fin[i])
 		{
-			console.log('effacement', i);
+			
 			this.ani.valeur.splice(i, 1);
 			this.ani.debut.splice(i, 1);
 			this.ani.fin.splice(i, 1);
@@ -134,7 +132,7 @@ Anim.prototype.prepAnim = function()
 	{
 		this.ani.statut = this.statut.erreur;
 	}
-	console.log(this.ani);
+	
 };
 
 /**
@@ -155,7 +153,6 @@ Anim.prototype.animationStep = function()
 	var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
 	document.dispatchEvent(event);
 
-	console.log('deltaTime',this.deltaTime);
 	// Si c'est la dernière iteration (fin de l'animation)
 	
 	// Pour chaque propriété
@@ -163,7 +160,6 @@ Anim.prototype.animationStep = function()
 	{
 		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
 
-		console.log('step',step);
 		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]) || this.ani.temps < this.ani.delai)
 		{
 			this.ani.valeur[i] += step;
