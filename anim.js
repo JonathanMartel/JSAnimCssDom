@@ -7,8 +7,8 @@
  * 
  * @author Jonathan Martel (jmartel@cmaisonneuve.qc.ca)
  * @date 2013-10-09
- * @update 2013-10-10
- * @version 0.1.1
+ * @update 2013-10-11
+ * @version 0.1.2
  * @license Creative Commons BY-NC 3.0 (Licence Creative Commons Attribution - Pas d’utilisation commerciale 3.0 non transposé)
  * @license http://creativecommons.org/licenses/by-nc/3.0/deed.fr
  * 
@@ -46,7 +46,8 @@ function Anim(ani)
 		demarrer:'demarrer',
 		arret: 'arret',
 		pause:'pause',
-		fin:'fin'
+		fin:'fin',
+		erreur:'erreur'
 	};
 	
 	if(ani)
@@ -80,6 +81,7 @@ Anim.prototype.prepAnim = function()
 	this.ani.debut = [];
 	//this.ani.inter = [];
 	this.ani.typeProp = [];
+	this.ani.temps =0;	// Temps écoulé
 	
 	// Calcul du nombre d'iteration
 	// this.ani.iteration = this.ani.delai / this.deltaTime;
@@ -128,6 +130,10 @@ Anim.prototype.prepAnim = function()
 			this.ani.unite.splice(i, 1);
 		}
 	}
+	if(this.ani.prop.length <=0)
+	{
+		this.ani.statut = this.statut.erreur;
+	}
 	console.log(this.ani);
 };
 
@@ -144,6 +150,7 @@ Anim.prototype.animationStep = function()
 	this.maintenant = Date.now();
     this.deltaTime = this.maintenant - this.avant;
 	this.avant = this.maintenant;
+	this.ani.temps += this.deltaTime;
 	
 	var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
 	document.dispatchEvent(event);
@@ -157,7 +164,7 @@ Anim.prototype.animationStep = function()
 		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
 
 		console.log('step',step);
-		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]))
+		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]) || this.ani.temps < this.ani.delai)
 		{
 			this.ani.valeur[i] += step;
 			if(this.ani.typeProp[i] == 'DOM')
@@ -201,9 +208,15 @@ Anim.prototype.animationStep = function()
 Anim.prototype.demarre = function()
 {
 	"use strict";
+	var valide = false;
 	this.avant = Date.now();
-	this.ani.statut = this.statut.demarrer;
-	requestAnimationFrame(this.animationStep.bind(this));
+	if(this.ani.statut != this.statut.erreur)
+	{
+		this.ani.statut = this.statut.demarrer;
+		requestAnimationFrame(this.animationStep.bind(this));
+		valide = true;
+	}
+	return valide;
 };
 
 
