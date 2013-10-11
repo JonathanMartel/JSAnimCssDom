@@ -18,8 +18,6 @@
 // TODO : Commenter le code
 
 
-
-
 /*
 var ani = {
 			element: ,
