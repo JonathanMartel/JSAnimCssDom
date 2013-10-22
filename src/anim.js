@@ -33,6 +33,7 @@ var ani = {
 function Anim(ani)
 {
 	"use strict";
+
 	var erreur;
 	this.deltaTime =null;
 	this.maintenant = null;
@@ -44,6 +45,11 @@ function Anim(ani)
 		pause:'pause',
 		fin:'fin',
 		erreur:'erreur'
+	};
+	this.mode =
+	{
+		une:'une',
+		boucle: 'boucle',
 	};
 	
 	if(ani)
@@ -79,9 +85,7 @@ Anim.prototype.prepAnim = function()
 	this.ani.typeProp = [];
 	this.ani.temps =0;	// Temps écoulé
 	
-	// Calcul du nombre d'iteration
-	// this.ani.iteration = this.ani.delai / this.deltaTime;
-	//TODO : Vérifier l'existence de la propriété et son attachement (CSS ou DOM Element)
+
 
 	// Pour chaque propriété à animer.
 	for(i=0;i<this.ani.prop.length; i++)
@@ -132,6 +136,20 @@ Anim.prototype.prepAnim = function()
 	}
 	
 };
+/**
+* Fonction qui replace l'animation au début
+**/
+Anim.prototype.reinitAni = function()
+{
+	"use strict";
+	this.ani.temps = 1;	// Temps écoulé
+	for(var i=0; i<this.ani.debut.length ;i++)
+	{
+		this.ani.valeur[i] = this.ani.debut[i];
+	}
+
+};
+
 
 /**
 * Fonction qui permet d'animer les propriétés définis par l'objet litéral.
@@ -142,23 +160,23 @@ Anim.prototype.animationStep = function()
 	"use strict";
 	var i;
 	var step;
-	
 	this.maintenant = Date.now();
     this.deltaTime = this.maintenant - this.avant;
 	this.avant = this.maintenant;
 	this.ani.temps += this.deltaTime;
-	
-	var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
-	document.dispatchEvent(event);
-
+	if(window.CustomEvent)
+	{
+		var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
+		document.dispatchEvent(event);
+	}
 	// Si c'est la dernière iteration (fin de l'animation)
-	
+	//console.log(this.ani.prop);
 	// Pour chaque propriété
 	for(i=0;i<this.ani.prop.length; i++)
 	{
 		step = (this.ani.fin[i]-this.ani.debut[i]) / (this.ani.delai/this.deltaTime);
 
-		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]) || this.ani.temps < this.ani.delai)
+		if(Math.abs(step) < Math.abs(this.ani.fin[i] - this.ani.valeur[i]) && this.ani.temps < this.ani.delai)
 		{
 			this.ani.valeur[i] += step;
 			if(this.ani.typeProp[i] == 'DOM')
@@ -186,20 +204,32 @@ Anim.prototype.animationStep = function()
 
 		}
 	}
+
 	if(this.ani.statut != this.statut.fin)
 	{
 		requestAnimationFrame(this.animationStep.bind(this));
 	}
 	else
 	{
+		//console.log('prop',this.ani.prop[0]);
+		// TODO : Faire un mode loop
+		if(this.ani.mode == this.mode.boucle)
+		{
+
+			this.ani.statut = this.statut.demarrer;
+			this.reinitAni();
+			this.demarre(this.ani.mode);
+		}
+
 		if(this.ani.callback)
 		{
 			this.ani.callback();	// Appel de la fonction callback.
 		}
 	}
+
 };
 
-Anim.prototype.demarre = function()
+Anim.prototype.demarre = function(mode)
 {
 	"use strict";
 	var valide = false;
@@ -207,6 +237,14 @@ Anim.prototype.demarre = function()
 	if(this.ani.statut != this.statut.erreur)
 	{
 		this.ani.statut = this.statut.demarrer;
+		if(mode)
+		{
+			this.ani.mode = this.mode.boucle;
+		}
+		else
+		{
+			this.ani.mode = this.mode.une;
+		}
 		requestAnimationFrame(this.animationStep.bind(this));
 		valide = true;
 	}

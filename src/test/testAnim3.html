@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../anim.js"></script>
+
+		<script>
+			window.addEventListener('error', function(e){
+				console.log(e);
+			});
+
+			window.addEventListener('load', function(){
+				//document.addEventListener('enterFrame', function(e){console.log(e);});
+
+				var monAnim = {
+					element: document.querySelector("div"),
+					prop: ["top", "left"],
+					unite: ["px","px"],
+					fin: [200, 200],
+					delai: 500,
+					callback: function(){ console.log("fin");}
+				};
+
+				var anim = new Anim(monAnim);
+				anim.demarre(anim.mode.boucle);
+			});
+
+		</script>
+		<style>
+			div
+			{
+				width:50px;
+				height: 50px;
+				background-color: #FF0000;
+				top:0px;
+				left:0px;
+				position:absolute;
+
+			}
+
+		</style>
+	</head>
+	<body>test mode = loop
+		<div title="ceci est une info"></div>
+
+	</body>
+
+</html>
