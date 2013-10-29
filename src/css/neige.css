@@ -1,0 +1,21 @@
+#animation
+{
+	padding:0;
+	margin:0;
+	top:0;
+	left:0;
+	position:absolute;
+	height:100%;
+	width:100%;
+	overflow:hidden;
+	z-index:-1;
+}
+
+#animation .flocon
+{
+	position:absolute;
+	width:6px;
+	height:6px;
+	border-radius:3px;
+	background-color:#FFFFFF;
+}

@@ -164,11 +164,11 @@ Anim.prototype.animationStep = function()
     this.deltaTime = this.maintenant - this.avant;
 	this.avant = this.maintenant;
 	this.ani.temps += this.deltaTime;
-	if(window.CustomEvent)
+	/*if(window.CustomEvent)
 	{
 		var event = new CustomEvent('enterFrame', {detail:{"deltaTime":this.deltaTime, "element":this.ani.element}});
 		document.dispatchEvent(event);
-	}
+	}*/
 	// Si c'est la dernière iteration (fin de l'animation)
 	//console.log(this.ani.prop);
 	// Pour chaque propriété
@@ -258,7 +258,7 @@ Anim.prototype.demarre = function(mode)
 
 // requestAnimationFrame polyfill by Erik Möller
 // fixes from Paul Irish and Tino Zijdel
-
+/*
 (function() {
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -296,3 +296,4 @@ Anim.prototype.demarre = function(mode)
 
   window.CustomEvent = CustomEvent;
 })();
+*/

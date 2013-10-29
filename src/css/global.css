@@ -1,0 +1,256 @@
+header, nav, section, article, aside, footer, main {
+   display:block;
+}
+
+
+html
+{
+	/*background-color:rgb(211, 1, 1);*/
+	background-color: rgb(78, 72, 66);
+	padding:0;
+	margin:0;
+	font-family: droid-sans, sans-serif;
+}
+body
+{
+	padding:0;
+	margin:0;
+	text-align:center;
+}
+p{
+	margin: 0px 0px 0px 0px;
+	line-height: 24px;	
+}
+
+main{
+	
+	width: 960px;
+	margin: 0 auto;
+	padding-left:10px;
+	padding-right:10px;
+	text-align: left;
+	
+}
+main > article
+{
+	width: 940px;
+	margin: 0px;
+	padding:0px;
+	display:block;
+}
+
+main > header
+{
+	width: 940px;
+	margin: 0;
+	padding:0;
+	height: 150px;
+	font-family: mountains-of-christmas, arial, sans-serif;
+	text-align:center;
+	
+}
+header h1
+{
+	font-size:54px;
+	text-shadow: 2px 2px 2px #000000;
+	padding-bottom:0px;
+	margin-bottom:0px;
+	color:rgb(242, 53, 51);
+}
+
+header h2
+{
+	font-size:36px;
+	padding-top:0px;
+	margin-top:0px;
+	text-shadow: 2px 2px 2px #000000;
+	color:rgb(242, 53, 51);
+}
+footer
+{
+	border-top: 1px solid #CCCCCC;
+	margin-top: 150px;
+	font-size: 10px;
+	height: auto;
+	float: left;
+	width: 100%;
+}
+
+.clear
+{
+	clear: both;
+	
+}
+
+
+textarea
+{
+	/*width: 300px;
+	height: 50px;*/
+	font-family: droid-sans, sans-serif;
+	font-size:16px;
+
+}
+
+.presentation
+{
+	
+	padding-top:25px;
+	padding-bottom:25px;
+	padding-left:25px;
+	padding-right:25px;
+	background-color: rgba(0,0,0,.5);
+	/*background-color: rgb(242, 53, 51);*/
+	border-radius:10px;
+	color: #FFFFFF;
+	
+	z-index:-1;
+}
+.presentation p
+{
+	margin-top:5px;
+	margin-bottom:5px;
+}
+.attention
+{
+	margin-top:10px;
+	margin-bottom:10px;
+	font-weight:bold;
+}
+.participant
+{
+	float:left;
+	width: 440px;
+	margin-right:0px;
+	min-height: 150px;
+	
+	
+	margin-top:10px;
+	padding: 10px;
+	background-color: rgba(0,0,0,.5);
+	border-radius:10px;
+	color: #FFFFFF;
+	display:block;
+}
+.participant:nth-child(odd)
+{
+	float:right;
+}
+.participant .nom
+{
+	padding-left:8px;
+	color:rgb(242, 53, 51);
+}
+
+.participant textarea, .participant textarea[readonly]
+{
+	overflow: auto;
+	width: 420px;
+	height: 100%;
+	resize: none;
+	padding:5px;
+	border-radius:10px;
+	outline: none;
+	background-color:#CCCCCC;
+}
+
+.participant textarea:focus
+{
+	background:#FFFFFF;
+	border:1px solid #00FFFF;
+}
+
+.participant textarea[readonly]:not(.modifier)
+{
+	background:#CCCCCC;
+	border:1px solid #000000;
+}
+
+
+.participant .modifier[readonly]
+{
+	border:1px solid #FF0000;
+}
+.participant .zoneBouton
+{
+	margin-top:10px;
+	
+}
+.participant button, .participant button:active
+{
+	height: 40px;
+	padding-right:10px;
+	padding-left:6px;
+	width:130px;
+	margin-right: 10px;
+	border: none;
+	display:inline-block;
+	border-radius:10px;
+	border: 1px solid #000000;
+	outline: none;
+}
+.participant button:active:not([disabled]){
+	background-color: rgba(0,0,0,.5);
+	color:#FFFFFF;
+	border: 1px transparent;
+}
+.participant .zoneBouton button:last-of-type
+{
+	width:286px;
+}
+.participant button:hover:not([disabled])
+{
+	box-shadow: inset 0 1px rgba(0,0,0,0.55), 2px 2px 2px 0px #000000;
+	/*background-color:#CCCCCC;*/
+}
+.participant button span
+{
+	display:block;
+	float:left;
+	height:40px;
+	line-height:40px;
+}
+
+.participant .icon
+{
+	height: 40px;
+	width:40px;
+	display:inline-block;
+	margin:0px;
+	padding:0px;
+	background-image: url(../images/icon40.png);
+	
+}
+.enregistrer
+{
+	
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	
+}
+.annuler
+{
+	background-position: -120px 0;
+}
+
+button:active:not([disabled]) .enregistrer
+{
+	background-position: -40px 0;
+	
+}
+button:active:not([disabled]) .annuler
+{
+	background-position: -160px 0;
+}
+
+button[disabled] .enregistrer
+{
+	background-position: -40px 0;
+	
+}
+
+
+button[disabled] .annuler
+{
+	background-position: -160px 0;
+}

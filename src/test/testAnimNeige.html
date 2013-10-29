@@ -1,0 +1,338 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	
+		<title>Site de pige de noël</title>
+		<!--[if IE]>
+
+<script type="text/javascript">
+//http://www.standardista.com/making-ie-recognize-html5-elements/
+(function(){
+	var html5elmeents = "address|article|aside|audio|canvas|command|datalist|details|dialog|figure|figcaption|footer|header|hgroup|keygen|mark|main|meter|menu|nav|progress|ruby|section|time|video".split('|');
+	for(var i = 0; i < html5elmeents.length; i++)
+	{
+		document.createElement(html5elmeents[i]);
+	}
+})();
+
+</script>
+
+<![endif]-->
+		<script src="http://use.edgefonts.net/droid-sans:n4,n7:all;mountains-of-christmas:n4,n7:all.js"></script>
+		<link href="../css/global.css" rel="stylesheet" type="text/css" />
+		<link href="../css/neige.css" rel="stylesheet" type="text/css" />
+		
+		<script src="../anim.js" type="text/javascript"></script>
+		<script>
+		/**
+ * Site de pige de cadeaux
+ *
+ * @author Jonathan Martel (jonathmartel@gmail.com)
+ * @date 2013-10-21
+ * @version 0.1
+ * @license Creative Commons BY-NC 3.0 (Licence Creative Commons Attribution - Pas d’utilisation commerciale 3.0 non transposé)
+ * @license http://creativecommons.org/licenses/by-nc/3.0/deed.fr
+ *
+ */
+var xhrEnregistre, xhrAnnuler;
+var MAXFLOCONS = 50;
+window.addEventListener('load', function(){
+	"use strict";
+	var champsTexteParticipants, i;
+	champsTexteParticipants = document.querySelectorAll(".participant textarea");
+	console.log(champsTexteParticipants);
+	
+	var lesBoutonsEnregistrer = document.querySelectorAll(".enregistrer");
+	var lesBoutonsAnnuler = document.querySelectorAll(".annuler");
+	for(i=0; i<lesBoutonsEnregistrer.length;i++)
+	{
+		lesBoutonsEnregistrer[i].disabled = true;
+		lesBoutonsEnregistrer[i].addEventListener('click', enregistreSuggestion);
+	}
+	for(i=0; i<lesBoutonsEnregistrer.length;i++)
+	{
+		lesBoutonsAnnuler[i].disabled = true;
+		lesBoutonsAnnuler[i].addEventListener('click', annulerChangementSuggestion);
+	}
+	for(i=0; i< champsTexteParticipants.length; i++)
+	{
+		console.log(champsTexteParticipants[i]);
+		champsTexteParticipants[i].addEventListener('focus', function(e){
+			var cible = e.target;
+			cible.readOnly = false;
+			console.log(cible);
+			
+		});
+		
+		champsTexteParticipants[i].addEventListener('blur', function(e){
+			var cible = e.target;
+			cible.readOnly = true;
+			console.log(cible);
+			
+		});
+		
+		champsTexteParticipants[i].addEventListener('keypress', function(e){
+			var cible = e.target;
+			if(!cible.classList.contains('modifier'))
+			{
+				cible.classList.add('modifier');
+				console.log(cible);
+				var boutons = document.querySelectorAll(".modifier + .zoneBouton button");
+				for(var i=0; i<boutons.length;i++)
+				{
+					boutons[i].disabled = false;
+				}
+			}
+			
+		});
+	}
+	
+	flocon();
+	//setInterval(flocon, Math.random()*500 );
+	
+	
+});
+
+function enregistreSuggestion(e)
+{
+	"use strict";
+	console.log('Enregistrer', e);
+	var idParticipant = e.currentTarget.getAttribute('data-participant');
+	console.log(idParticipant);
+	var suggestion = document.getElementsByName(idParticipant)[0].value;
+	console.log(suggestion);
+	e.currentTarget.disabled = true;
+	//TODO : Générer requête ajax
+	xhrEnregistre = new XMLHttpRequest();
+	xhrEnregistre.open('POST', "http://pige.jonathanmartel.info/ajaxController.php?fonction=enregistrer&idparticipant="+idParticipant);
+	xhrEnregistre.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xhrEnregistre.send("suggestion="+suggestion);
+	xhrEnregistre.onreadystatechange = function(){
+		
+		if(xhrEnregistre.readyState ==4 && xhrEnregistre.status == 200)
+		{
+			var participant = JSON.parse(xhrEnregistre.responseText);
+			
+			// Le bouton annuler doit être désactivé
+			var sel = "button.annuler.id_participant_"+participant.id;
+			var bouton = document.querySelectorAll(sel);
+			bouton[0].disabled =  true;
+			sel = "textarea[name='"+participant.id +"']";
+			var textarea = document.querySelector(sel);
+			textarea.classList.remove('modifier');
+			
+		}
+		
+	};
+}
+
+function annulerChangementSuggestion(e)
+{
+	"use strict";
+	console.log('Annule', e);
+	e.currentTarget.disabled = true;
+	var idParticipant = e.currentTarget.getAttribute('data-participant');
+	console.log(idParticipant);
+	//TODO : Générer requête ajax
+	xhrAnnuler = new XMLHttpRequest();
+	xhrAnnuler.open('GET', "http://pige.jonathanmartel.info/ajaxController.php?fonction=annuler&idparticipant="+idParticipant);
+	xhrAnnuler.send();
+	xhrAnnuler.onreadystatechange = function(){
+		
+		if(xhrAnnuler.readyState ==4 && xhrAnnuler.status == 200)
+		{
+			var participant = JSON.parse(xhrAnnuler.responseText);
+			
+			// Le bouton annuler doit être désactivé
+			var sel = "button.enregistrer.id_participant_"+participant.id;
+			var bouton = document.querySelectorAll(sel);
+			bouton[0].disabled =  true;
+			sel = "textarea[name='"+participant.id +"']";
+			var textarea = document.querySelector(sel);
+			textarea.classList.remove('modifier');
+			textarea.value = participant.suggestions;
+			
+		}
+		
+	};
+}
+
+function flocon()
+{
+	"use strict";
+	var domFlocon;
+	var style = window.getComputedStyle(document.querySelector('html'), null);
+	//console.log(style);
+	var width = parseFloat(style.getPropertyValue("width"));
+	var height = parseFloat(style.getPropertyValue("height"));
+	
+	var divAnim = document.querySelector('#animation');
+	var nombre = Math.random()*5;
+	for(var i=0; i<nombre; i++)
+	{
+		domFlocon = document.createElement('div');
+		domFlocon.setAttribute('class', 'flocon');
+		domFlocon.style.top = (Math.random()*50)+"px";
+		domFlocon.style.left = (Math.random()*width)+"px";
+		divAnim.appendChild(domFlocon);
+		var delai = Math.random()*2000;
+		var elementFlocon = {
+			element: domFlocon,
+			prop: ["top", "left"],
+			unite: ["px", "px"],
+			fin: [height, parseFloat(domFlocon.style.left)+(Math.random()*200-100)],
+			delai: 10000+delai,
+			/*callback: function(){
+				//setTimeout(window.detruireFlocon.bind(this), Math.random()*5000);
+				//console.log(elementFlocon);
+				var aniFlocon = new Anim(elementFlocon);
+				aniFlocon.demarre();
+			}*/
+		};
+		var aniFlocon = new Anim(elementFlocon);
+		aniFlocon.demarre(aniFlocon.mode.boucle);
+		//console.log(elementFlocon);
+	}
+	if(document.querySelectorAll('#animation div').length < MAXFLOCONS)
+	{
+		setTimeout(flocon, Math.random()*750);
+	}
+}
+
+function detruireFlocon()
+{
+	"use strict";
+	//this.element.parentElement.removeChild(this.element);
+}
+
+
+
+//addEventListener polyfill 1.0 / Eirik Backer / MIT Licence
+// Source : https://gist.github.com/eirikbacker/2864711
+(function(win, doc) {
+	if (win.addEventListener)
+		return;
+	//No need to polyfill
+
+	function docHijack(p) {
+		var old = doc[p];
+		doc[p] = function(v) 
+		{
+			return addListen(old(v));
+		};
+	}
+
+	function addEvent(on, fn, self) {
+		return ( self = this).attachEvent('on' + on, function(e) {
+			var e = e || win.event;
+			e.preventDefault = e.preventDefault ||
+			function() 
+			{
+				e.returnValue = false;
+			};
+
+
+			e.stopPropagation = e.stopPropagation ||
+			function() {
+				e.cancelBubble = true;
+			};
+
+
+			fn.call(self, e);
+		});
+	}
+
+	function addListen(obj, i) {
+		if ( i == obj.length)
+			while (i--)
+			obj[i].addEventListener = addEvent;
+		else
+			obj.addEventListener = addEvent;
+		return obj;
+	}
+
+	addListen([doc, win]);
+	if ('Element' in win)
+		win.Element.prototype.addEventListener = addEvent;
+	//IE8
+	else {//IE < 8
+		doc.attachEvent('onreadystatechange', function() {
+			addListen(doc.all);
+		});
+		//Make sure we also init at domReady
+		docHijack('getElementsByTagName');
+		docHijack('getElementById');
+		docHijack('createElement');
+		addListen(doc.all);
+	}
+})(window, document); 
+		
+		</script>
+	</head>
+	<body>
+		<div id="animation"></div>
+		<main>
+			<header>
+				<h1>Suggestion de pige de cadeaux</h1>
+				<h2>Famille Brassard</h2>
+			</header>
+			
+			<article>
+				<section class="presentation">
+					<p>Bienvenue sur le site de partage des suggestions des cadeaux de pige de la famille Brassard. Ce site vous permettra d'écrire vous-même vos suggestions telles que vous le voulez et de voir les suggestions des noms que vous avez pigés. Fantastique n'est-ce pas?</p>
+					
+					<p>Si vous avez un problème avec le fonctionnement ou si vous ne trouvez pas votre nom, veuillez me contacter :<br>
+					Domicile : 514.521.3984<br>
+					Portable : 514.971.3928<br>
+					Courriel : jonathmartel@gmail.com<br>
+					</p> 
+					
+					<p class="attention">ATTENTION : vous pouvez modifier les suggestions de tout le monde. Conséquemment, vous pouvez aussi les effacer, soyez prudent.</p>
+				</section>
+
+				<section class="participant">
+					<div class="nom"><p>Jonathan Martel</p></div>
+					<div class="suggestion">
+						<textarea class="" noresize rows="4" readonly="" name="0">suggestions test</textarea>
+						<div class="zoneBouton">
+							<button data-participant="0" class="enregistrer id_participant_0" title="Enregistrer"><span class="icon enregistrer"></span><span class="label">Enregistrer</span></button>
+							<button data-participant="0" class="annuler id_participant_0" title="Annuler les modifications"><span class="icon annuler"></span><span class="label">Annuler les modifications</span></button>
+						</div>
+					</div>
+					
+				</section>
+	
+				<section class="participant">
+					<div class="nom"><p>Chantal Vigneux</p></div>
+					<div class="suggestion">
+						<textarea class="" noresize rows="4" readonly="" name="1"></textarea>
+						<div class="zoneBouton">
+							<button data-participant="1" class="enregistrer id_participant_1" title="Enregistrer"><span class="icon enregistrer"></span><span class="label">Enregistrer</span></button>
+							<button data-participant="1" class="annuler id_participant_1" title="Annuler les modifications"><span class="icon annuler"></span><span class="label">Annuler les modifications</span></button>
+						</div>
+					</div>
+					
+				</section>
+				
+				 
+				<section class="participant">
+					<div class="nom"><p>Johanne Brassard</p></div>
+					<div class="suggestion">
+						<textarea class="" noresize rows="4" readonly="" name="3"></textarea>
+						<div class="zoneBouton">
+							<button data-participant="3" class="enregistrer id_participant_3" title="Enregistrer"><span class="icon enregistrer"></span><span class="label">Enregistrer</span></button>
+							<button data-participant="3" class="annuler id_participant_3" title="Annuler les modifications"><span class="icon annuler"></span><span class="label">Annuler les modifications</span></button>
+						</div>
+					</div>
+					
+				</section>
+			
+			</article>
+			<footer>
+				Certains droits réservés @ Jonathan Martel (2013)<br>
+				Sous licence Creative Commons (BY-NC 3.0)
+			</footer>
+		</main>	
+	</body>
+</html>
