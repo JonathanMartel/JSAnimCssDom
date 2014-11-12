@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../anim.js"></script>
+
+		<script>
+			//Test pour vérifier la performance de chaque step
+
+            window.addEventListener('error', function(e){
+				console.log(e);
+			});
+
+			window.addEventListener('load', function(){
+
+				var monAnim = {
+					element: document.querySelector("div"),
+					prop: ["transform"],
+					unite: [""],
+					fin: ["rotate(180deg)"],
+					delai: 1500,
+					callback: function(){ console.log("fin");}
+				};
+
+				var anim = new Anim(monAnim);
+				anim.demarre();
+			});
+
+		</script>
+		<style>
+			div
+			{
+				width:50px;
+				height: 50px;
+				background-color: #FF0000;
+				top:0px;
+				left:0px;
+				position:absolute;
+                z-index:1;
+			}
+
+		</style>
+	</head>
+	<body>test mode = une fois. Animation de la propriété css transform
+
+		<div title="ceci est une info"></div>
+
+	</body>
+
+</html>
