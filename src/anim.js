@@ -103,15 +103,30 @@ Anim.prototype.prepAnim = function()
 		else
 		{
 			this.ani.typeProp[i] = 'CSS';
-			
-			// Lecture de la valeur actuelle
-			valeur = window.getComputedStyle(this.ani.element,null).getPropertyValue(this.ani.prop[i]);		// BUG : Dans Chrome, valeur == auto et non la valeur calculée
-			if(valeur == "auto")
-			{
-				throw new Error('La propriété retourne une valeur non numérique ('+ this.ani.prop[i]+'='+valeur +')');
-			}
-			this.ani.valeur[i] = parseFloat(valeur);
-			this.ani.debut[i] = this.ani.valeur[i];
+            // Cas spécifique de l'animation d'un transform
+			if(this.ani.prop[i] == "transform")
+            {
+                console.log('transform');
+                valeur = window.getComputedStyle(this.ani.element,null).getPropertyValue(this.ani.prop[i]);
+                console.log(valeur); // Retourne la matrice de transform...
+                // Source : http://css-tricks.com/get-value-of-css-rotation-through-javascript/
+                //http://www.useragentman.com/blog/2011/01/07/css3-matrix-transform-for-the-mathematically-challenged/
+
+            }
+            else
+            {
+
+                // Lecture de la valeur actuelle
+                valeur = window.getComputedStyle(this.ani.element,null).getPropertyValue(this.ani.prop[i]);		// BUG : Dans Chrome, valeur == auto et non la valeur calculée
+
+                if(valeur == "auto" || "none")
+                {
+                    throw new Error('La propriété retourne une valeur non numérique ('+ this.ani.prop[i]+'='+valeur +')');
+                }
+                this.ani.valeur[i] = parseFloat(valeur);
+                this.ani.debut[i] = this.ani.valeur[i];
+            }
+
 		}
 	}
 
