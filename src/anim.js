@@ -158,6 +158,7 @@ Anim.prototype.reinitAni = function()
 Anim.prototype.animationStep = function()
 {
 	"use strict";
+    var perf_debut = getTimestamp();
 	var i;
 	var step;
 	this.maintenant = Date.now();
@@ -226,7 +227,8 @@ Anim.prototype.animationStep = function()
 			this.ani.callback();	// Appel de la fonction callback.
 		}
 	}
-
+    var perf_temps = getTimestamp() - perf_debut;
+    console.log("perf " +perf_temps, "delta " + this.deltaTime);
 };
 
 Anim.prototype.demarre = function(mode)
@@ -287,6 +289,21 @@ if (!Date.now)
         window.cancelAnimationFrame = clearTimeout;
     }
 }());
+
+if (window.performance.now) {
+    console.log("Using high performance timer");
+    getTimestamp = function() { return window.performance.now(); };
+} else {
+    if (window.performance.webkitNow) {
+        console.log("Using webkit high performance timer");
+        getTimestamp = function() { return window.performance.webkitNow(); };
+    } else {
+        console.log("Using low performance timer");
+        getTimestamp = function() { return new Date().getTime(); };
+    }
+}
+
+//getTimestamp();
 
 // http://creativejs.com/resources/requestanimationframe/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
